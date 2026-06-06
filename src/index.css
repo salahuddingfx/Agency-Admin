@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-bgLight dark:bg-brand-darker text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden antialiased;
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 200ms;
+  }
+
+  /* Scrollbar overrides */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-brand-slateAccent rounded-full hover:bg-slate-400 dark:hover:bg-slate-700 transition-colors;
+  }
+}
+
+/* Base Card Panel styles */
+.admin-card {
+  @apply bg-white dark:bg-brand-slateAccent/25 border border-brand-borderLight dark:border-brand-slateAccent/30 shadow-light dark:shadow-premium p-6 rounded-lg;
+}
+
+/* Input Fields styling */
+.admin-input {
+  @apply w-full bg-slate-50 dark:bg-brand-darker/40 border border-brand-borderLight dark:border-brand-slateAccent text-slate-900 dark:text-white rounded-md px-3 py-2 text-xs outline-none transition-all placeholder:text-slate-400 focus:border-brand-primary/50 focus:bg-white dark:focus:bg-brand-darker/60 focus:ring-1 focus:ring-brand-primary/30;
+}
+
+/* Button stylings */
+.btn-primary {
+  @apply px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent hover:from-brand-primary hover:to-brand-secondary text-white text-xs font-semibold rounded-md shadow-premium transition-all;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 border border-brand-borderLight dark:border-brand-slateAccent text-slate-700 dark:text-white text-xs font-semibold rounded-md hover:bg-slate-100 dark:hover:bg-brand-slateAccent/40 transition-colors;
+}
+
+.btn-danger {
+  @apply px-4 py-2 border border-red-500/20 text-red-500 text-xs font-semibold rounded-md hover:bg-red-500/5 transition-colors;
+}

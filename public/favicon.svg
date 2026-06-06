@@ -1,0 +1,10 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="50,15 85,35 85,75 50,95 15,75 15,35" stroke="#18B7F5" stroke-width="6" stroke-opacity="0.3" />
+  <path d="M32 68 L32 32 L50 56 L68 32 L68 68" stroke="url(#admin-fav-logo-grad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  <defs>
+    <linearGradient id="admin-fav-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#18B7F5" />
+      <stop offset="100%" stopColor="#2563EB" />
+    </linearGradient>
+  </defs>
+</svg>
