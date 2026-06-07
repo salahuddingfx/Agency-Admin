@@ -8,6 +8,7 @@ import {
   LogOut, Menu, X, ChevronRight, ChevronLeft, Search, AlertCircle
 } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import Logo from '../components/Logo';
 
 export default function DashboardLayout({ children }) {
   const { theme, toggleTheme, auth, logoutUser, notifications, setNotifications } = useAdmin();
@@ -60,7 +61,7 @@ export default function DashboardLayout({ children }) {
       {/* Brand header */}
       <div className="flex items-center justify-between p-6 border-b border-brand-slateAccent/40">
         <Link to="/" className="flex items-center space-x-3">
-          <img src="/NEXTORA-LOGO.png" alt="Nextora Logo" className="w-7 h-7 object-contain" />
+          <Logo size={28} />
           {!isSidebarCollapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-[0.2em] font-display text-white">NEXTORA</span>
