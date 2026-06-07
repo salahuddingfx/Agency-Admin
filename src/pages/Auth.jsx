@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, RefreshCw, Send, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 import { toast } from 'sonner';
+import Logo from '../components/Logo';
 
 export default function Auth() {
   const { loginUser, usersList } = useAdmin();
@@ -67,7 +68,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           {/* Logo */}
           <div className="inline-flex items-center space-x-2.5 mb-3">
-            <img src="/NEXTORA-LOGO.png" alt="Nextora Logo" className="w-9 h-9 object-contain" />
+            <Logo size={36} />
             <span className="text-lg font-bold tracking-[0.25em] font-display text-slate-800 dark:text-white">NEXTORA</span>
           </div>
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mt-1">Admin Portal Sandbox</h2>
