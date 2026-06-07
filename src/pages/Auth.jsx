@@ -67,16 +67,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           {/* Logo */}
           <div className="inline-flex items-center space-x-2.5 mb-3">
-            <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="50,15 85,35 85,75 50,95 15,75 15,35" stroke="rgba(24, 183, 245, 0.2)" strokeWidth="3" />
-              <path d="M32 68 L32 32 L50 56 L68 32 L68 68" stroke="url(#auth-logo-grad)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-              <defs>
-                <linearGradient id="auth-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#18B7F5" />
-                  <stop offset="100%" stopColor="#2563EB" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <img src="/NEXTORA-LOGO.png" alt="Nextora Logo" className="w-9 h-9 object-contain" />
             <span className="text-lg font-bold tracking-[0.25em] font-display text-slate-800 dark:text-white">NEXTORA</span>
           </div>
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mt-1">Admin Portal Sandbox</h2>
