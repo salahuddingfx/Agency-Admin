@@ -60,16 +60,7 @@ export default function DashboardLayout({ children }) {
       {/* Brand header */}
       <div className="flex items-center justify-between p-6 border-b border-brand-slateAccent/40">
         <Link to="/" className="flex items-center space-x-3">
-          <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="50,15 85,35 85,75 50,95 15,75 15,35" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
-            <path d="M32 68 L32 32 L50 56 L68 32 L68 68" stroke="url(#layout-logo-grad)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-            <defs>
-              <linearGradient id="layout-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#18B7F5" />
-                <stop offset="100%" stopColor="#2563EB" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img src="/NEXTORA-LOGO.png" alt="Nextora Logo" className="w-7 h-7 object-contain" />
           {!isSidebarCollapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-[0.2em] font-display text-white">NEXTORA</span>
