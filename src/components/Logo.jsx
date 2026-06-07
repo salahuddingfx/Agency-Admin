@@ -1,6 +1,15 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
-export default function Logo({ size = 36, className = "" }) {
+export default function Logo({ size = 36, className = "", animated = false }) {
+  const pathProps = animated
+    ? {
+        initial: { pathLength: 0 },
+        animate: { pathLength: 1 },
+        transition: { duration: 1.8, ease: "easeInOut" }
+      }
+    : {};
+
   return (
     <svg
       width={size}
@@ -20,15 +29,28 @@ export default function Logo({ size = 36, className = "" }) {
         </mask>
       </defs>
       {/* Background circle */}
-      <circle cx="50" cy="50" r="40" fill="url(#logo-bg-grad-admin)" />
+      {animated ? (
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="40"
+          fill="url(#logo-bg-grad-admin)"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        />
+      ) : (
+        <circle cx="50" cy="50" r="40" fill="url(#logo-bg-grad-admin)" />
+      )}
       {/* Interlocking white path */}
-      <path
+      <motion.path
         d="M 10 55 L 32 55 C 36 55, 38 34, 42 34 C 48 34, 52 66, 58 66 C 62 66, 64 45, 68 45 L 90 45"
         stroke="#FFFFFF"
         strokeWidth="8"
         strokeLinecap="round"
         strokeLinejoin="round"
         mask="url(#logo-circle-mask-admin)"
+        {...pathProps}
       />
     </svg>
   );
