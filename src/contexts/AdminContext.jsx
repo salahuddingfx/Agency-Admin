@@ -64,14 +64,14 @@ const initialPortalClients = [
 ];
 
 const initialUsersList = [
-  { id: 'usr-1', name: 'Sarah Jenkins', email: 'sarah@nextora.tech', role: 'Super Admin', status: 'Active' },
+  { id: 'usr-1', name: 'Salah Uddin Kader', email: 'info.salahuddinkader@gmail.com', role: 'Super Admin', status: 'Active' },
   { id: 'usr-2', name: 'David Carter', email: 'david@nextora.tech', role: 'Admin', status: 'Active' },
   { id: 'usr-3', name: 'Amina Al-Masri', email: 'amina@nextora.tech', role: 'Manager', status: 'Active' },
   { id: 'usr-4', name: 'Junior Editor', email: 'editor@nextora.tech', role: 'Editor', status: 'Active' }
 ];
 
 const initialAuditLogs = [
-  { id: 'log-1', timestamp: '2026-06-05 18:30:12', user: 'sarah@nextora.tech', action: 'Login Approved', ip: '192.168.1.42', role: 'Super Admin' },
+  { id: 'log-1', timestamp: '2026-06-05 18:30:12', user: 'info.salahuddinkader@gmail.com', action: 'Login Approved', ip: '192.168.1.42', role: 'Super Admin' },
   { id: 'log-2', timestamp: '2026-06-05 19:12:44', user: 'editor@nextora.tech', action: 'Draft Blog Created: E-Commerce Trends', ip: '192.168.1.105', role: 'Editor' }
 ];
 
