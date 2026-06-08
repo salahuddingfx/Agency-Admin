@@ -35,9 +35,7 @@ const initialTech = [
   { id: 'tech-3', name: 'Docker', category: 'Infrastructure', desc: 'Environment containerization.' }
 ];
 
-const initialTestimonials = [
-  { id: 'test-1', name: 'Marcus Aurelius', company: 'Empire Logistics', text: 'Nextora rebuilt our inventory portal. The delivery route efficiency rose 20% in weeks.', stars: 5 }
-];
+const initialTestimonials = [];
 
 const initialCareers = [
   { id: 'job-1', title: 'Senior Frontend Engineer (React/Tailwind)', department: 'Engineering', status: 'Open', salary: '$110,000 - $140,000' },
