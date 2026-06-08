@@ -49,7 +49,7 @@ export default function TestimonialsMgmt() {
       logAction(`Modified Testimonial: Review from ${name}`);
     } else {
       const created = {
-        id: `test-${Date.now()}`,
+        id: `tm-${Date.now()}`,
         name,
         company,
         text,
