@@ -1,4 +1,112 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../api/api';
+
+/* ─── UI Normalizers (Sync structure between server and client) ───── */
+function parseSkillsString(skills) {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills;
+  if (typeof skills === 'string' && skills.includes(':')) {
+    return skills.split(',').map(s => {
+      const [name, level] = s.trim().split(':');
+      return { name: name?.trim() || '', level: parseInt(level) || 0 };
+    });
+  }
+  return [];
+}
+
+function toArr(val) {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string' && val) return val.split(',').map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+function normalizeTeamMembers(members) {
+  if (!Array.isArray(members)) return [];
+  return members.map(m => ({
+    ...m,
+    id: m._id || m.id,
+    skills: parseSkillsString(m.skills),
+    socials: m.socials || { github: '#', linkedin: '#', twitter: '#' },
+    bio: m.bio || '',
+    avatarGradient: m.avatarGradient || 'from-brand-primary to-brand-accent',
+    avatarUrl: m.avatarUrl || '',
+  }));
+}
+
+function normalizeServices(services) {
+  if (!Array.isArray(services)) return [];
+  return services.map(s => ({
+    ...s,
+    id: s._id || s.id,
+    features: toArr(s.features),
+    iconName: s.iconName || s.category || 'Layers',
+    slug: s.slug || s.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+  }));
+}
+
+function normalizePortfolios(projects) {
+  if (!Array.isArray(projects)) return [];
+  return projects.map(p => ({
+    ...p,
+    id: p._id || p.id,
+    services: toArr(p.services),
+    summary: p.summary || p.description || '',
+    imageColor: p.imageColor || 'from-blue-600 to-cyan-500',
+  }));
+}
+
+function normalizeCaseStudies(studies) {
+  if (!Array.isArray(studies)) return [];
+  return studies.map(s => ({
+    ...s,
+    id: s._id || s.id,
+    stats: Array.isArray(s.stats) ? s.stats : [
+      { label: 'Problem', value: s.problem ? '1 identified' : 'N/A' },
+      { label: 'Solution', value: s.solution ? 'Delivered' : 'Pending' },
+      { label: 'Result', value: s.result || 'In progress' },
+    ],
+    category: s.category || 'Custom Software',
+    summary: s.summary || s.problem || '',
+    coverColor: s.coverColor || 'from-blue-600 to-indigo-700',
+  }));
+}
+
+function normalizeCareers(careers) {
+  if (!Array.isArray(careers)) return [];
+  return careers.map(c => ({
+    ...c,
+    id: c._id || c.id,
+    type: c.type || c.department || 'Full-time',
+    responsibilities: toArr(c.responsibilities),
+    requirements: toArr(c.requirements),
+  }));
+}
+
+function normalizeTechnologies(techs) {
+  if (!Array.isArray(techs)) return [];
+  return techs.map(t => ({
+    ...t,
+    id: t._id || t.id,
+  }));
+}
+
+function normalizeTestimonials(testimonials) {
+  if (!Array.isArray(testimonials)) return [];
+  return testimonials.map(t => ({
+    ...t,
+    id: t._id || t.id,
+  }));
+}
+
+function normalizeBlogs(blogs) {
+  if (!Array.isArray(blogs)) return [];
+  return blogs.map(b => ({
+    ...b,
+    id: b._id || b.id,
+    tags: toArr(b.tags),
+    summary: b.summary || b.excerpt || '',
+  }));
+}
 
 const AdminContext = createContext();
 
@@ -90,10 +198,21 @@ export function AdminProvider({ children }) {
   // Theme Manager
   const [theme, setTheme] = useState(() => localStorage.getItem('admin-theme') || 'dark');
 
-  // Auth User Details
-  const [auth, setAuth] = useState({
-    user: null,
-    isLoggedIn: false
+  // Auth User Details (Auto-resolve state on initial mount from localStorage)
+  const [auth, setAuth] = useState(() => {
+    const token = localStorage.getItem('adminToken');
+    const userStr = localStorage.getItem('adminUser');
+    if (token && userStr) {
+      try {
+        return {
+          user: JSON.parse(userStr),
+          isLoggedIn: true
+        };
+      } catch {
+        return { user: null, isLoggedIn: false };
+      }
+    }
+    return { user: null, isLoggedIn: false };
   });
 
   // Database states
@@ -118,6 +237,204 @@ export function AdminProvider({ children }) {
     { id: 1, text: 'New lead Stark Industries entered pipeline', read: false, time: '10m ago' },
     { id: 2, text: 'New career application from Emma Watson', read: false, time: '1h ago' }
   ]);
+
+  // Load all DB collections from backend API on login/mount
+  useEffect(() => {
+    if (!auth.isLoggedIn || localStorage.getItem('adminToken') === 'mock-sandbox-token') {
+      return;
+    }
+
+    const loadData = async () => {
+      try {
+        const [
+          srvRes,
+          portRes,
+          caseRes,
+          blogRes,
+          teamRes,
+          techRes,
+          testRes,
+          careerRes,
+          appRes,
+          leadRes,
+          clientRes,
+          userRes,
+          contactRes,
+          settingsRes
+        ] = await Promise.all([
+          api.getServices().catch(() => ({ success: false, data: [] })),
+          api.getPortfolios().catch(() => ({ success: false, data: [] })),
+          api.getCaseStudies().catch(() => ({ success: false, data: [] })),
+          api.getBlogs().catch(() => ({ success: false, data: [] })),
+          api.getTeams().catch(() => ({ success: false, data: [] })),
+          api.getTechnologies().catch(() => ({ success: false, data: [] })),
+          api.getTestimonials().catch(() => ({ success: false, data: [] })),
+          api.getCareers().catch(() => ({ success: false, data: [] })),
+          api.getApplications().catch(() => ({ success: false, data: [] })),
+          api.getLeads().catch(() => ({ success: false, data: [] })),
+          api.getClients().catch(() => ({ success: false, data: [] })),
+          api.getUsers().catch(() => ({ success: false, data: [] })),
+          api.getContacts().catch(() => ({ success: false, data: [] })),
+          api.getSettings().catch(() => ({ success: false, data: initialSettings }))
+        ]);
+
+        if (srvRes.success && srvRes.data?.length > 0) setServices(normalizeServices(srvRes.data));
+        if (portRes.success && portRes.data?.length > 0) setPortfolio(normalizePortfolios(portRes.data));
+        if (caseRes.success && caseRes.data?.length > 0) setCases(normalizeCaseStudies(caseRes.data));
+        if (blogRes.success && blogRes.data?.length > 0) setBlogs(normalizeBlogs(blogRes.data));
+        if (teamRes.success && teamRes.data?.length > 0) setTeam(normalizeTeamMembers(teamRes.data));
+        if (techRes.success && techRes.data?.length > 0) setTech(normalizeTechnologies(techRes.data));
+        if (testRes.success && testRes.data?.length > 0) setTestimonials(normalizeTestimonials(testRes.data));
+        if (careerRes.success && careerRes.data?.length > 0) setCareers(normalizeCareers(careerRes.data));
+        if (appRes.success && appRes.data?.length > 0) setApplications(appRes.data.map(a => ({ ...a, id: a._id || a.id })));
+        if (leadRes.success && leadRes.data?.length > 0) setLeads(leadRes.data.map(l => ({ ...l, id: l._id || l.id })));
+        if (clientRes.success && clientRes.data?.length > 0) setPortalClients(clientRes.data.map(c => ({ ...c, id: c._id || c.id })));
+        if (userRes.success && userRes.data?.length > 0) setUsersList(userRes.data.map(u => ({ ...u, id: u._id || u.id })));
+        if (contactRes.success && contactRes.data?.length > 0) setInbox(contactRes.data.map(m => ({ ...m, id: m._id || m.id })));
+        if (settingsRes.success && settingsRes.data) setSettings(settingsRes.data);
+      } catch (err) {
+        console.error('Failed to load backend databases:', err);
+      }
+    };
+
+    loadData();
+  }, [auth.isLoggedIn]);
+
+  // Intercept setter wrapper to auto-sync CRUD modifications to MongoDB API
+  const makeSyncSetter = (state, setState, type, apiMethods) => {
+    return async (value) => {
+      let nextState;
+      if (typeof value === 'function') {
+        nextState = value(state);
+      } else {
+        nextState = value;
+      }
+
+      setState(nextState);
+
+      if (!auth.isLoggedIn || localStorage.getItem('adminToken') === 'mock-sandbox-token') {
+        return;
+      }
+
+      try {
+        const currentMap = new Map(state.map(item => [item.id || item._id, item]));
+        const nextMap = new Map(nextState.map(item => [item.id || item._id, item]));
+
+        // 1. Delete items that were removed
+        for (const [id, item] of currentMap.entries()) {
+          if (!nextMap.has(id)) {
+            if (id && !id.toString().includes('-')) {
+              await apiMethods.delete(id);
+            }
+          }
+        }
+
+        // 2. Create or Update items
+        for (const [id, item] of nextMap.entries()) {
+          if (!currentMap.has(id)) {
+            const apiData = { ...item };
+            delete apiData.id;
+            delete apiData._id;
+            const res = await apiMethods.create(apiData);
+            if (res.success && (res.data?._id || res.data?.id)) {
+              const realId = res.data._id || res.data.id;
+              setState(prev => prev.map(x => x.id === id ? { ...x, id: realId, _id: realId } : x));
+            }
+          } else {
+            const currentItem = currentMap.get(id);
+            if (JSON.stringify(currentItem) !== JSON.stringify(item)) {
+              const apiData = { ...item };
+              delete apiData.id;
+              delete apiData._id;
+              if (id && !id.toString().includes('-')) {
+                await apiMethods.update(id, apiData);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`Sync error on ${type}:`, err);
+      }
+    };
+  };
+
+  const setServicesWithSync = makeSyncSetter(services, setServices, 'services', {
+    create: api.createService,
+    update: api.updateService,
+    delete: api.deleteService
+  });
+
+  const setPortfolioWithSync = makeSyncSetter(portfolio, setPortfolio, 'portfolio', {
+    create: api.createPortfolio,
+    update: api.updatePortfolio,
+    delete: api.deletePortfolio
+  });
+
+  const setCasesWithSync = makeSyncSetter(cases, setCases, 'cases', {
+    create: api.createCaseStudy,
+    update: api.updateCaseStudy,
+    delete: api.deleteCaseStudy
+  });
+
+  const setBlogsWithSync = makeSyncSetter(blogs, setBlogs, 'blogs', {
+    create: api.createBlog,
+    update: api.updateBlog,
+    delete: api.deleteBlog
+  });
+
+  const setTeamWithSync = makeSyncSetter(team, setTeam, 'team', {
+    create: api.createTeam,
+    update: api.updateTeam,
+    delete: api.deleteTeam
+  });
+
+  const setTechWithSync = makeSyncSetter(tech, setTech, 'tech', {
+    create: api.createTechnology,
+    update: api.updateTechnology,
+    delete: api.deleteTechnology
+  });
+
+  const setTestimonialsWithSync = makeSyncSetter(testimonials, setTestimonials, 'testimonials', {
+    create: api.createTestimonial,
+    update: api.updateTestimonial,
+    delete: api.deleteTestimonial
+  });
+
+  const setCareersWithSync = makeSyncSetter(careers, setCareers, 'careers', {
+    create: api.createCareer,
+    update: api.updateCareer,
+    delete: api.deleteCareer
+  });
+
+  const setApplicationsWithSync = makeSyncSetter(applications, setApplications, 'applications', {
+    create: api.createApplication,
+    update: api.updateApplication,
+    delete: api.deleteApplication
+  });
+
+  const setInboxWithSync = makeSyncSetter(inbox, setInbox, 'inbox', {
+    create: api.createContact,
+    update: api.updateContact,
+    delete: api.deleteContact
+  });
+
+  const setLeadsWithSync = makeSyncSetter(leads, setLeads, 'leads', {
+    create: api.createLead,
+    update: api.updateLead,
+    delete: api.deleteLead
+  });
+
+  const setPortalClientsWithSync = makeSyncSetter(portalClients, setPortalClients, 'portalClients', {
+    create: api.createClient,
+    update: api.updateClient,
+    delete: api.deleteClient
+  });
+
+  const setUsersListWithSync = makeSyncSetter(usersList, setUsersList, 'usersList', {
+    create: api.createUser,
+    update: api.updateUser,
+    delete: api.deleteUser
+  });
 
   // Sync theme to document element
   useEffect(() => {
@@ -147,12 +464,14 @@ export function AdminProvider({ children }) {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  const loginUser = (email, role) => {
+  const loginUser = (email, role, token) => {
+    const user = { email, role };
+    localStorage.setItem('adminToken', token);
+    localStorage.setItem('adminUser', JSON.stringify(user));
     setAuth({
-      user: { email, role },
+      user,
       isLoggedIn: true
     });
-    // Append log event
     const newLog = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
@@ -166,6 +485,8 @@ export function AdminProvider({ children }) {
 
   const logoutUser = () => {
     logAction('User Logged Out');
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
     setAuth({ user: null, isLoggedIn: false });
   };
 
@@ -178,35 +499,44 @@ export function AdminProvider({ children }) {
         loginUser,
         logoutUser,
         services,
-        setServices,
+        setServices: setServicesWithSync,
         portfolio,
-        setPortfolio,
+        setPortfolio: setPortfolioWithSync,
         cases,
-        setCases,
+        setCases: setCasesWithSync,
         blogs,
-        setBlogs,
+        setBlogs: setBlogsWithSync,
         team,
-        setTeam,
+        setTeam: setTeamWithSync,
         tech,
-        setTech,
+        setTech: setTechWithSync,
         testimonials,
-        setTestimonials,
+        setTestimonials: setTestimonialsWithSync,
         careers,
-        setCareers,
+        setCareers: setCareersWithSync,
         applications,
-        setApplications,
+        setApplications: setApplicationsWithSync,
         inbox,
-        setInbox,
+        setInbox: setInboxWithSync,
         leads,
-        setLeads,
+        setLeads: setLeadsWithSync,
         portalClients,
-        setPortalClients,
+        setPortalClients: setPortalClientsWithSync,
         usersList,
-        setUsersList,
+        setUsersList: setUsersListWithSync,
         auditLogs,
         setAuditLogs,
         settings,
-        setSettings,
+        setSettings: async (val) => {
+          setSettings(val);
+          if (auth.isLoggedIn && localStorage.getItem('adminToken') !== 'mock-sandbox-token') {
+            try {
+              await api.updateSettings(val);
+            } catch (err) {
+              console.error('Settings sync error:', err);
+            }
+          }
+        },
         notifications,
         setNotifications,
         logAction
