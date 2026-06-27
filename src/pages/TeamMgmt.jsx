@@ -75,10 +75,8 @@ export default function TeamMgmt() {
     try {
       const res = await api.uploadFile(formData);
       if (res.success && res.url) {
-        // Build the full backend URL
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-        const serverOrigin = new URL(API_URL).origin;
-        setAvatarUrl(`${serverOrigin}${res.url}`);
+        // Cloudinary returns a full https:// URL — use it directly
+        setAvatarUrl(res.url);
       }
     } catch (err) {
       alert(`Image upload failed: ${err.message}`);
