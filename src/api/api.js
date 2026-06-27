@@ -99,5 +99,57 @@ export const api = {
   getLeads: () => request('/leads'),
   createLead: (data) => request('/leads', { method: 'POST', body: data }),
   updateLead: (id, data) => request(`/leads/${id}`, { method: 'PUT', body: data }),
-  deleteLead: (id) => request(`/leads/${id}`, { method: 'DELETE' })
+  deleteLead: (id) => request(`/leads/${id}`, { method: 'DELETE' }),
+
+  // Portfolios
+  getPortfolios: () => request('/portfolios'),
+  createPortfolio: (data) => request('/portfolios', { method: 'POST', body: data }),
+  updatePortfolio: (id, data) => request(`/portfolios/${id}`, { method: 'PUT', body: data }),
+  deletePortfolio: (id) => request(`/portfolios/${id}`, { method: 'DELETE' }),
+
+  // Case Studies
+  getCaseStudies: () => request('/case-studies'),
+  createCaseStudy: (data) => request('/case-studies', { method: 'POST', body: data }),
+  updateCaseStudy: (id, data) => request(`/case-studies/${id}`, { method: 'PUT', body: data }),
+  deleteCaseStudy: (id) => request(`/case-studies/${id}`, { method: 'DELETE' }),
+
+  // Teams
+  getTeams: () => request('/teams'),
+  createTeam: (data) => request('/teams', { method: 'POST', body: data }),
+  updateTeam: (id, data) => request(`/teams/${id}`, { method: 'PUT', body: data }),
+  deleteTeam: (id) => request(`/teams/${id}`, { method: 'DELETE' }),
+
+  // Technologies
+  getTechnologies: () => request('/technologies'),
+  createTechnology: (data) => request('/technologies', { method: 'POST', body: data }),
+  updateTechnology: (id, data) => request(`/technologies/${id}`, { method: 'PUT', body: data }),
+  deleteTechnology: (id) => request(`/technologies/${id}`, { method: 'DELETE' }),
+
+  // Testimonials
+  getTestimonials: () => request('/testimonials'),
+  createTestimonial: (data) => request('/testimonials', { method: 'POST', body: data }),
+  updateTestimonial: (id, data) => request(`/testimonials/${id}`, { method: 'PUT', body: data }),
+  deleteTestimonial: (id) => request(`/testimonials/${id}`, { method: 'DELETE' }),
+
+  // Careers
+  getCareers: () => request('/careers'),
+  createCareer: (data) => request('/careers', { method: 'POST', body: data }),
+  updateCareer: (id, data) => request(`/careers/${id}`, { method: 'PUT', body: data }),
+  deleteCareer: (id) => request(`/careers/${id}`, { method: 'DELETE' }),
+
+  // Applications
+  getApplications: () => request('/applications'),
+  createApplication: (data) => request('/applications', { method: 'POST', body: data }),
+  updateApplication: (id, data) => request(`/applications/${id}`, { method: 'PUT', body: data }),
+  deleteApplication: (id) => request(`/applications/${id}`, { method: 'DELETE' }),
+
+  // Contacts (Inbox)
+  getContacts: () => request('/contacts'),
+  createContact: (data) => request('/contacts', { method: 'POST', body: data }),
+  updateContact: (id, data) => request(`/contacts/${id}`, { method: 'PUT', body: data }),
+  deleteContact: (id) => request(`/contacts/${id}`, { method: 'DELETE' }),
+
+  // Settings
+  getSettings: () => request('/settings'),
+  updateSettings: (data) => request('/settings', { method: 'PUT', body: data })
 };

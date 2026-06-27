@@ -5,6 +5,7 @@ import { Mail, Lock, RefreshCw, Send, CheckCircle, Eye, EyeOff } from 'lucide-re
 import { useAdmin } from '../contexts/AdminContext';
 import { toast } from 'sonner';
 import Logo from '../components/Logo';
+import { api } from '../api/api';
 
 export default function Auth() {
   const { loginUser, usersList } = useAdmin();
@@ -18,18 +19,34 @@ export default function Auth() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim()) {
-      toast.error('Please fill out your work email.');
+    if (!email.trim() || !password.trim()) {
+      toast.error('Please enter email and password.');
       return;
     }
-    // Lookup user in mock user directory to derive role dynamically
-    const matchedUser = usersList.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    const role = matchedUser ? matchedUser.role : 'Super Admin'; // default fallback
     
-    loginUser(email, role);
-    navigate('/');
+    try {
+      const loginLoader = toast.loading('Connecting to gateway...');
+      const res = await api.login(email, password);
+      
+      if (res.success) {
+        toast.dismiss(loginLoader);
+        toast.success(`Welcome back, ${res.user.name}!`);
+        loginUser(res.user.email, res.user.role, res.accessToken);
+        navigate('/');
+      } else {
+        toast.dismiss(loginLoader);
+        toast.error(res.message || 'Invalid work credentials.');
+      }
+    } catch (err) {
+      toast.error(`API Error: ${err.message || 'Unreachable'}. Sandbox bypass enabled.`);
+      // Mock Fallback Sandbox
+      const matchedUser = usersList.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const role = matchedUser ? matchedUser.role : 'Super Admin';
+      loginUser(email, role, 'mock-sandbox-token');
+      navigate('/');
+    }
   };
 
   const handleForgotSubmit = (e) => {
