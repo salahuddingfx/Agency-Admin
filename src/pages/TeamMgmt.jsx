@@ -182,8 +182,12 @@ export default function TeamMgmt() {
           <div key={item.id} className="admin-card flex flex-col justify-between hover:border-brand-primary/10 transition-colors">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-brand-primary/15 text-brand-primary flex items-center justify-center font-bold text-sm">
-                  {item.name.split(' ').map(n => n[0]).join('')}
+                <div className="w-10 h-10 rounded-full bg-brand-primary/15 text-brand-primary flex items-center justify-center font-bold text-sm overflow-hidden shrink-0">
+                  {item.avatarUrl ? (
+                    <img src={item.avatarUrl} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    item.name.split(' ').map(n => n[0]).join('')
+                  )}
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-white font-display leading-tight">{item.name}</h3>
@@ -256,6 +260,51 @@ export default function TeamMgmt() {
                 </div>
 
                 <form onSubmit={handleSave} className="space-y-4 text-xs">
+
+                  {/* Avatar Upload */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase font-semibold text-slate-500">Profile Photo</label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full shrink-0 overflow-hidden border-2 border-brand-slateAccent flex items-center justify-center bg-brand-primary/10 text-brand-primary font-bold text-xl">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        <label
+                          htmlFor="avatar-upload"
+                          className="flex items-center gap-2 cursor-pointer btn-secondary py-2 px-3 w-full justify-center"
+                        >
+                          {uploading ? (
+                            <><Loader2 size={12} className="animate-spin" /><span>Uploading…</span></>
+                          ) : (
+                            <><Upload size={12} /><span>Upload Photo</span></>
+                          )}
+                        </label>
+                        <input
+                          id="avatar-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          disabled={uploading}
+                        />
+                        {avatarUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setAvatarUrl('')}
+                            className="text-[9px] text-red-400 hover:text-red-600 flex items-center gap-1"
+                          >
+                            <X size={10} /> Remove photo
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Full Name */}
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase font-semibold text-slate-500">Full Name</label>
                     <input
@@ -268,6 +317,7 @@ export default function TeamMgmt() {
                     />
                   </div>
 
+                  {/* Role */}
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase font-semibold text-slate-500">Corporate Role</label>
                     <input
@@ -280,6 +330,7 @@ export default function TeamMgmt() {
                     />
                   </div>
 
+                  {/* Experience */}
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase font-semibold text-slate-500">Years of Experience</label>
                     <input
@@ -292,6 +343,19 @@ export default function TeamMgmt() {
                     />
                   </div>
 
+                  {/* Bio */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase font-semibold text-slate-500">Short Bio</label>
+                    <textarea
+                      rows={3}
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Brief background about this team member…"
+                      className="admin-input resize-none"
+                    />
+                  </div>
+
+                  {/* Skills */}
                   <div className="space-y-1">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] uppercase font-semibold text-slate-500">Skills Indicators</label>
@@ -304,6 +368,43 @@ export default function TeamMgmt() {
                       placeholder="React:95, Node:80, CSS:90"
                       className="admin-input font-mono"
                     />
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="space-y-2 pt-1">
+                    <label className="text-[10px] uppercase font-semibold text-slate-500">Social Links</label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500 text-[10px] w-14 shrink-0">GitHub</span>
+                        <input
+                          type="url"
+                          value={github}
+                          onChange={(e) => setGithub(e.target.value)}
+                          placeholder="https://github.com/username"
+                          className="admin-input flex-1"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500 text-[10px] w-14 shrink-0">LinkedIn</span>
+                        <input
+                          type="url"
+                          value={linkedin}
+                          onChange={(e) => setLinkedin(e.target.value)}
+                          placeholder="https://linkedin.com/in/username"
+                          className="admin-input flex-1"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500 text-[10px] w-14 shrink-0">Twitter/X</span>
+                        <input
+                          type="url"
+                          value={twitter}
+                          onChange={(e) => setTwitter(e.target.value)}
+                          placeholder="https://x.com/username"
+                          className="admin-input flex-1"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="pt-4 flex gap-3">
