@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Check, Upload, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X, Check, Sparkles } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import CloudinaryUpload from '../components/CloudinaryUpload';
 
 export default function PortfolioMgmt() {
   const { portfolio, setPortfolio, auth, logAction } = useAdmin();
@@ -16,7 +17,7 @@ export default function PortfolioMgmt() {
   const [client, setClient] = useState('');
   const [featured, setFeatured] = useState(false);
   const [imageColor, setImageColor] = useState('from-blue-600 to-cyan-500');
-  const [previewFile, setPreviewFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   const categories = ['All', 'Web Development', 'Mobile App Development', 'POS Solutions', 'ERP & CRM Systems', 'UI/UX Design'];
 
@@ -34,7 +35,7 @@ export default function PortfolioMgmt() {
     setClient('');
     setFeatured(false);
     setImageColor('from-blue-600 to-cyan-500');
-    setPreviewFile(null);
+    setImageUrl('');
     setDrawerOpen(true);
   };
 
@@ -45,7 +46,7 @@ export default function PortfolioMgmt() {
     setClient(item.client);
     setFeatured(item.featured);
     setImageColor(item.imageColor || 'from-blue-600 to-cyan-500');
-    setPreviewFile(null);
+    setImageUrl(item.imageUrl || '');
     setDrawerOpen(true);
   };
 
@@ -58,7 +59,7 @@ export default function PortfolioMgmt() {
 
     if (editingItem) {
       setPortfolio(prev => prev.map(p => p.id === editingItem.id ? {
-        ...p, title, category, client, featured, imageColor
+        ...p, title, category, client, featured, imageColor, imageUrl
       } : p));
       logAction(`Modified Portfolio Project: ${title}`);
     } else {
@@ -68,7 +69,8 @@ export default function PortfolioMgmt() {
         category,
         client,
         featured,
-        imageColor
+        imageColor,
+        imageUrl
       };
       setPortfolio(prev => [...prev, created]);
       logAction(`Created Portfolio Project: ${title}`);
@@ -289,31 +291,14 @@ export default function PortfolioMgmt() {
                   </div>
                 </div>
 
-                {/* Simulated dropzone file manager */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase font-semibold text-slate-500 block">Staging Cover Graphic</label>
-                  
-                  <div className="border border-dashed border-brand-borderLight dark:border-brand-slateAccent rounded-lg p-5 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-white/5 transition-colors relative">
-                    {previewFile ? (
-                      <div className="flex flex-col items-center">
-                        <img src={previewFile} alt="Preview" className="h-20 w-32 object-cover rounded border border-brand-slateAccent mb-2" />
-                        <span className="text-[9px] text-green-400 font-bold uppercase">Mockup Loaded</span>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload size={20} className="text-slate-500 mb-2" />
-                        <span className="text-[10px] text-slate-400 font-semibold">Drag files here or click to upload</span>
-                        <span className="text-[8px] text-slate-500 mt-1 block">Supports PNG, SVG covers (Simulated)</span>
-                      </>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                  </div>
-                </div>
+                {/* Cloudinary Cover Image Upload */}
+                <CloudinaryUpload
+                  label="Project Cover Image"
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  accept="image/*"
+                  previewType="image"
+                />
 
                 <div className="pt-4 flex gap-3">
                   <button

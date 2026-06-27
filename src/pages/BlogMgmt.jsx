@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Search, X, Check, Globe, FileText } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import CloudinaryUpload from '../components/CloudinaryUpload';
 
 export default function BlogMgmt() {
   const { blogs, setBlogs, logAction } = useAdmin();
@@ -18,6 +19,7 @@ export default function BlogMgmt() {
   const [seoTitle, setSeoTitle] = useState('');
   const [seoDesc, setSeoDesc] = useState('');
   const [snippet, setSnippet] = useState('');
+  const [coverImage, setCoverImage] = useState('');
 
   const filtered = blogs.filter(b => 
     b.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -34,6 +36,7 @@ export default function BlogMgmt() {
     setSeoTitle('');
     setSeoDesc('');
     setSnippet('');
+    setCoverImage('');
     setDrawerOpen(true);
   };
 
@@ -47,6 +50,7 @@ export default function BlogMgmt() {
     setSeoTitle(item.metaTitle || '');
     setSeoDesc(item.metaDesc || '');
     setSnippet(item.snippet || '');
+    setCoverImage(item.coverImage || '');
     setDrawerOpen(true);
   };
 
@@ -58,7 +62,7 @@ export default function BlogMgmt() {
 
     if (editingBlog) {
       setBlogs(prev => prev.map(b => b.id === editingBlog.id ? {
-        ...b, title, author, category, status, tags: parsedTags, metaTitle: seoTitle, metaDesc: seoDesc, snippet
+        ...b, title, author, category, status, tags: parsedTags, metaTitle: seoTitle, metaDesc: seoDesc, snippet, coverImage
       } : b));
       logAction(`Modified Blog Post: ${title}`);
     } else {
@@ -72,6 +76,7 @@ export default function BlogMgmt() {
         metaTitle: seoTitle,
         metaDesc: seoDesc,
         snippet,
+        coverImage,
         publishDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         readTime: '5 min read'
       };
@@ -306,6 +311,15 @@ export default function BlogMgmt() {
                       />
                     </div>
                   </div>
+
+                  {/* Cover Image */}
+                  <CloudinaryUpload
+                    label="Cover Image"
+                    value={coverImage}
+                    onChange={setCoverImage}
+                    accept="image/*"
+                    previewType="image"
+                  />
 
                   <div className="pt-4 flex gap-3">
                     <button type="button" onClick={() => setDrawerOpen(false)} className="w-1/2 btn-secondary py-2.5">Cancel</button>

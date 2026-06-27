@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Search, X, Check, FileText } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import CloudinaryUpload from '../components/CloudinaryUpload';
 
 export default function CaseStudiesMgmt() {
   const { cases, setCases, logAction } = useAdmin();
@@ -16,6 +17,7 @@ export default function CaseStudiesMgmt() {
   const [problem, setProblem] = useState('');
   const [solution, setSolution] = useState('');
   const [result, setResult] = useState('');
+  const [coverImage, setCoverImage] = useState('');
 
   const filtered = cases.filter(c => 
     c.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -30,6 +32,7 @@ export default function CaseStudiesMgmt() {
     setProblem('');
     setSolution('');
     setResult('');
+    setCoverImage('');
     setDrawerOpen(true);
   };
 
@@ -41,6 +44,7 @@ export default function CaseStudiesMgmt() {
     setProblem(item.problem || '');
     setSolution(item.solution || '');
     setResult(item.result || '');
+    setCoverImage(item.coverImage || '');
     setDrawerOpen(true);
   };
 
@@ -50,7 +54,7 @@ export default function CaseStudiesMgmt() {
 
     if (editingCase) {
       setCases(prev => prev.map(c => c.id === editingCase.id ? {
-        ...c, title, client, status, problem, solution, result
+        ...c, title, client, status, problem, solution, result, coverImage
       } : c));
       logAction(`Modified Case Study: ${title}`);
     } else {
@@ -61,7 +65,8 @@ export default function CaseStudiesMgmt() {
         status,
         problem,
         solution,
-        result
+        result,
+        coverImage
       };
       setCases(prev => [...prev, created]);
       logAction(`Created Case Study: ${title}`);
@@ -257,6 +262,15 @@ export default function CaseStudiesMgmt() {
                       className="admin-input resize-none"
                     />
                   </div>
+
+                  {/* Cover Image */}
+                  <CloudinaryUpload
+                    label="Cover Image"
+                    value={coverImage}
+                    onChange={setCoverImage}
+                    accept="image/*"
+                    previewType="image"
+                  />
 
                   <div className="pt-4 flex gap-3">
                     <button type="button" onClick={() => setDrawerOpen(false)} className="w-1/2 btn-secondary py-2.5">Cancel</button>
