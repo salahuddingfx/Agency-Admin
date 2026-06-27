@@ -26,10 +26,18 @@ function normalizeTeamMembers(members) {
     ...m,
     id: m._id || m.id,
     skills: parseSkillsString(m.skills),
-    socials: m.socials || { github: '#', linkedin: '#', twitter: '#' },
     bio: m.bio || '',
     avatarGradient: m.avatarGradient || 'from-brand-primary to-brand-accent',
     avatarUrl: m.avatarUrl || '',
+    github: m.github || m.socials?.github || '',
+    linkedin: m.linkedin || m.socials?.linkedin || '',
+    twitter: m.twitter || m.socials?.twitter || '',
+    // Keep backward-compat socials object used by client Team page
+    socials: {
+      github: m.github || m.socials?.github || '#',
+      linkedin: m.linkedin || m.socials?.linkedin || '#',
+      twitter: m.twitter || m.socials?.twitter || '#',
+    },
   }));
 }
 

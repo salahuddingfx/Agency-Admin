@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Search, X, Check, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X, Check, Eye, Upload, Loader2 } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
+import { api } from '../api/api';
 
 export default function TeamMgmt() {
   const { team, setTeam, logAction } = useAdmin();
@@ -13,7 +14,13 @@ export default function TeamMgmt() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [experience, setExperience] = useState('');
+  const [bio, setBio] = useState('');
   const [skillsStr, setSkillsStr] = useState(''); // "React:90, Node:85"
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [github, setGithub] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const filtered = team.filter(t => 
     t.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -25,7 +32,12 @@ export default function TeamMgmt() {
     setName('');
     setRole('');
     setExperience('');
+    setBio('');
     setSkillsStr('');
+    setAvatarUrl('');
+    setGithub('');
+    setLinkedin('');
+    setTwitter('');
     setDrawerOpen(true);
   };
 
@@ -34,27 +46,58 @@ export default function TeamMgmt() {
     setName(item.name);
     setRole(item.role);
     setExperience(item.experience);
-    setSkillsStr(item.skills || '');
+    setBio(item.bio || '');
+    setAvatarUrl(item.avatarUrl || '');
+    setGithub(item.github || '');
+    setLinkedin(item.linkedin || '');
+    setTwitter(item.twitter || '');
+    
+    // Safely serialize skills arrays back to a string for input editing
+    let skillsString = '';
+    if (Array.isArray(item.skills)) {
+      skillsString = item.skills.map(s => `${s.name}:${s.level !== undefined ? s.level : (s.value !== undefined ? s.value : 50)}`).join(', ');
+    } else if (typeof item.skills === 'string') {
+      skillsString = item.skills;
+    }
+    
+    setSkillsStr(skillsString);
     setDrawerOpen(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    try {
+      const res = await api.uploadFile(formData);
+      if (res.success && res.url) {
+        // Build the full backend URL
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+        const serverOrigin = new URL(API_URL).origin;
+        setAvatarUrl(`${serverOrigin}${res.url}`);
+      }
+    } catch (err) {
+      alert(`Image upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = (e) => {
     e.preventDefault();
     if (!name.trim() || !role.trim()) return;
 
+    const memberData = { name, role, experience, bio, skills: skillsStr, avatarUrl, github, linkedin, twitter };
+
     if (editingItem) {
-      setTeam(prev => prev.map(t => t.id === editingItem.id ? {
-        ...t, name, role, experience, skills: skillsStr
-      } : t));
+      setTeam(prev => prev.map(t => t.id === editingItem.id ? { ...t, ...memberData } : t));
       logAction(`Modified Team Member Profile: ${name}`);
     } else {
-      const created = {
-        id: `tm-${Date.now()}`,
-        name,
-        role,
-        experience,
-        skills: skillsStr
-      };
+      const created = { id: `tm-${Date.now()}`, ...memberData };
       setTeam(prev => [...prev, created]);
       logAction(`Added Team Member: ${name}`);
     }
@@ -71,17 +114,29 @@ export default function TeamMgmt() {
   // Parse skill string into pairs
   const renderSkills = (skills) => {
     if (!skills) return null;
-    return skills.split(',').map((pair, idx) => {
-      const [skillName, val] = pair.split(':');
+    
+    let skillsArray = [];
+    if (typeof skills === 'string') {
+      skillsArray = skills.split(',').map(pair => {
+        const [name, level] = pair.split(':');
+        return { name: name?.trim() || '', level: parseInt(level) || 50 };
+      });
+    } else if (Array.isArray(skills)) {
+      skillsArray = skills;
+    }
+
+    return skillsArray.map((skill, idx) => {
+      const skillName = skill.name || skill.label || '';
+      const val = skill.level !== undefined ? skill.level : (skill.value !== undefined ? skill.value : 50);
       if (!skillName) return null;
       return (
         <div key={idx} className="space-y-1">
           <div className="flex justify-between text-[10px] text-slate-500">
-            <span>{skillName.trim()}</span>
-            <span className="font-semibold text-brand-primary">{val ? val.trim() : '50'}%</span>
+            <span>{skillName}</span>
+            <span className="font-semibold text-brand-primary">{val}%</span>
           </div>
           <div className="h-1 bg-slate-100 dark:bg-brand-slateAccent rounded-full overflow-hidden">
-            <div className="h-full bg-brand-primary rounded-full" style={{ width: `${val ? val.trim() : 50}%` }} />
+            <div className="h-full bg-brand-primary rounded-full" style={{ width: `${val}%` }} />
           </div>
         </div>
       );

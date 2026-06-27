@@ -5,7 +5,7 @@ async function request(endpoint, options = {}) {
   const token = localStorage.getItem('adminToken');
   
   const headers = {
-    'Content-Type': 'application/json',
+    ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token && { 'Authorization': `Bearer ${token}` }),
     ...options.headers,
   };
@@ -15,7 +15,7 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  if (config.body && typeof config.body === 'object') {
+  if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
     config.body = JSON.stringify(config.body);
   }
 
@@ -23,6 +23,13 @@ async function request(endpoint, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      if (window.location.pathname !== '/auth') {
+        window.location.href = '/auth';
+      }
+    }
     throw new Error(data.message || 'Network request failed');
   }
 
@@ -151,5 +158,8 @@ export const api = {
 
   // Settings
   getSettings: () => request('/settings'),
-  updateSettings: (data) => request('/settings', { method: 'PUT', body: data })
+  updateSettings: (data) => request('/settings', { method: 'PUT', body: data }),
+
+  // File Upload
+  uploadFile: (formData) => request('/upload', { method: 'POST', body: formData })
 };
